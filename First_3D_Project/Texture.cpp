@@ -19,7 +19,7 @@ Texture::Texture()
 
 }
 
-Texture::Texture()
+Texture::~Texture()
 {
 
 }
