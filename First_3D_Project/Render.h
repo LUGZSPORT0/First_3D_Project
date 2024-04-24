@@ -23,7 +23,7 @@ public:
 
 	bool Initialize(float screenWidth, float screenHeight);
 	void Shutdown();
-	void UnloadDate();
+	void UnloadData();
 
 	void Draw();
 

@@ -210,3 +210,78 @@ Texture* Renderer::GetTexture(const std::string& fileName)
 	}
 	return tex;
 }
+
+Mesh* Renderer::GetMesh(const std::string& fileName)
+{
+	Mesh* m = nullptr;
+	auto iter = mMeshes.find(fileName);
+	if (iter != mMeshes.end())
+	{
+		m = iter->second;
+	}
+	else
+	{
+		m = new Mesh();
+		if (m->Load(fileName, this))
+		{
+			mMeshes.emplace(fileName, m);
+		}
+		else
+		{
+			delete m;
+			m = nullptr;
+		}
+	}
+	return m;
+}
+
+bool Renderer::LoadShaders()
+{
+	// Create sprite shader
+	mSpriteShader = new Shader();
+	if (!mSpriteShader->Load("Shaders/Sprite.vert", "Shaders/Sprite.frag"))
+	{
+		return false;
+	}
+	mMeshShader->SetActive();
+	// Set the view-projection matrix
+	mView = Matrix4::CreateLookAt(Vector3::Zero, Vector3::UnitX, Vector3::UnitZ);
+	mProjection = Matrix4::CreatePerspectiveFOV(Math::ToRadians(70.0f),
+		mScreenWidth, mScreenHeight, 25.0f, 10000.0f);
+	mMeshShader->SetMatrixUniform("uViewProj", mView * mProjection);
+	return true;
+}
+
+void Renderer::CreateSpriteVerts()
+{
+	float vertices[] = {
+		-0.5f, 0.5f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, // top left
+		0.5f, 0.5f, 0.f, 0.f, 0.f, 0.0f, 1.f, 0.f, // top right
+		0.5f, -0.5f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, // bottom right
+		-0.5f, -0.5f, 0.f, 0.f, 0.f, 0.0f, 0.f, 1.f // bottom left
+	};
+
+	unsigned int indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	mSpriteVerts = new VertexArray(vertices, 4, indices, 6);
+}
+
+void Renderer::SetLightUniforms(Shader* shader)
+{
+	// Camera position is from inverted view
+	Matrix4 invView = mView;
+	invView.Invert();
+	shader->SetVectorUniform("uCameraPos", invView.GetTranslation());
+	// Ambient light
+	shader->SetVectorUniform("uAmbientLight", mAmbientLight);
+	// Directional light	
+	shader->SetVectorUniform("uDirLight.mDirection",
+		mDirLight.mDirection);
+	shader->SetVectorUniform("uDirLight.mDiffuseColor",
+		mDirLight.mDiffuseColor);
+	shader->SetVectorUnifrom("uDirLight.mSpecColor",
+		mDirLight.mSpecColor);
+}
