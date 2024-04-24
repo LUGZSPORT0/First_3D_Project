@@ -7,8 +7,11 @@
 // ----------------------------------------------------------------
 
 #include "SpriteComponent.h"
+#include "Texture.h"
+#include "Shader.h"
 #include "Actor.h"
 #include "Game.h"
+#include "Render.h"
 
 SpriteComponent::SpriteComponent(Actor* owner, int drawOrder)
 	:Component(owner)
