@@ -9,6 +9,7 @@
 #pragma once
 #include <vector>
 #include "Math.h"
+#include <cstdint>	
 
 class Actor
 {
@@ -36,8 +37,8 @@ public:
 	virtual void ActorInput(const uint8_t* keyState);
 
 	// Getters/setters
-	const Vector2& GetPosition() const { return mPosition; }
-	void SetPosition(const Vector2& pos) { mPosition = pos; }
+	const Vector3& GetPosition() const { return mPosition; }
+	void SetPosition(const Vector3& pos) { mPosition = pos; mRecomputeWorldTransform = true; }
 	float GetScale() const { return mScale; }
 	void SetScale(float scale) { mScale = scale; }
 	float GetRotation() const { return mRotation; }
@@ -59,6 +60,8 @@ private:
 	State mState;
 
 	// Transform
+	Matrix4 mWorldTransform;
+	Vector3 mPosition;
 	Vector2 mPosition;
 	float mScale;
 	float mRotation;
