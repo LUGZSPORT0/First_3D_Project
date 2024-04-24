@@ -40,11 +40,14 @@ public:
 	const Vector3& GetPosition() const { return mPosition; }
 	void SetPosition(const Vector3& pos) { mPosition = pos; mRecomputeWorldTransform = true; }
 	float GetScale() const { return mScale; }
-	void SetScale(float scale) { mScale = scale; }
-	float GetRotation() const { return mRotation; }
-	void SetRotation(float rotation) { mRotation = rotation; }
+	void SetScale(float scale) { mScale = scale; mRecomputeWorldTransform = true; }
+	const Quaternion& GetRotation() const { return mRotation; }
+	void SetRotation(const Quaternion& rotation) { mRotation = rotation; mRecomputeWorldTransform; }
 
-	Vector2 GetForward() const { return Vector2(Math::Cos(mRotation), -Math::Sin(mRotation)); }
+	void ComputeWorldTransform();
+	const Matrix4& GetWorldTransform() const { return mWorldTransform; }
+
+	Vector3 GetForward() const { return Vector3::Transform(Vector3::UnitX, mRotation); }
 
 	State GetState() const { return mState; }
 	void SetState(State state) { mState = state; }
@@ -62,9 +65,9 @@ private:
 	// Transform
 	Matrix4 mWorldTransform;
 	Vector3 mPosition;
-	Vector2 mPosition;
+	Quaternion mRotation;
 	float mScale;
-	float mRotation;
+	bool mRecomputeWorldTransform;
 
 	std::vector<class Component*> mComponents;
 	class Game* mGame;
