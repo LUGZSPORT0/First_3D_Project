@@ -17,7 +17,7 @@ Shader::~Shader()
 
 }
 
-bool Shader::Load(std::string& vertName, const std::string& fragName)
+bool Shader::Load(const std::string& vertName, const std::string& fragName)
 {
 	// Compile vertex and pixel shaders
 	if (!CompileShader(vertName,
@@ -119,7 +119,7 @@ bool Shader::CompileShader(const std::string& fileName,
 bool Shader::IsValidProgram()
 {
 
-	GLuint status;
+	GLint status;
 	// Query the link status
 	glGetProgramiv(mShaderProgram, GL_LINK_STATUS, &status);
 	if (status != GL_TRUE)

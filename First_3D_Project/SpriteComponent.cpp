@@ -11,7 +11,7 @@
 #include "Shader.h"
 #include "Actor.h"
 #include "Game.h"
-#include "Render.h"
+#include "Renderer.h"
 
 SpriteComponent::SpriteComponent(Actor* owner, int drawOrder)
 	:Component(owner)
