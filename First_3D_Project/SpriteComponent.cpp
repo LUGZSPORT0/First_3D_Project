@@ -20,40 +20,42 @@ SpriteComponent::SpriteComponent(Actor* owner, int drawOrder)
 	, mTexWidth(0)
 	, mTexHeight(0)
 {
-	mOwner->GetGame()->AddSprite(this);
+	mOwner->GetGame()->GetRenderer()->AddSprite(this);
 }
 
 SpriteComponent::~SpriteComponent()
 {
-	mOwner->GetGame()->RemoveSprite(this);
+	mOwner->GetGame()->GetRenderer()->RemoveSprite(this);
 }
 
-void SpriteComponent::Draw(SDL_Renderer* renderer)
+void SpriteComponent::Draw(Shader* shader)
 {
 	if (mTexture)
 	{
-		SDL_Rect r;
-		// Scale the width/height by owner's scale
-		r.w = static_cast<int>(mTexWidth * mOwner->GetScale());
-		r.h = static_cast<int>(mTexHeight * mOwner->GetScale());
-		// Center the rectangle around the position of the owner
-		r.x = static_cast<int>(mOwner->GetPosition().x - r.w / 2);
-		r.y = static_cast<int>(mOwner->GetPosition().y - r.h / 2);
+		// Scale the quad by the width/height of texture
+		Matrix4 scaleMat = Matrix4::CreateScale(
+			static_cast<float>(mTexWidth),
+			static_cast<float>(mTexHeight),
+			1.0f);
 
-		// Draw (have to convert angle from radians to degrees, and clockwise to counter)
-		SDL_RenderCopyEx(renderer,
-			mTexture,
-			nullptr,
-			&r,
-			-Math::ToDegrees(mOwner->GetRotation()),
-			nullptr,
-			SDL_FLIP_NONE);
+		Matrix4 world = scaleMat * mOwner->GetWorldTransform();
+
+		// Since all sprites use the same shade/vertices,
+		// the game first sets them active before any sprite draws
+
+		// Set world transform
+		shader->SetMatrixUniform("uWorldTransform", world);
+		// Set current texture
+		mTexture->SetActive();
+		// Draw quad
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 	}
 }
 
-void SpriteComponent::SetTexture(SDL_Texture* texture)
+void SpriteComponent::SetTexture(Texture* texture)
 {
 	mTexture = texture;
 	// Set width/height
-	SDL_QueryTexture(texture, nullptr, nullptr, &mTexWidth, &mTexHeight);
+	mTexWidth = texture->GetWidth();
+	mTexHeight = texture->GetHeight();
 }

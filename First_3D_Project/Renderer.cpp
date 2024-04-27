@@ -11,7 +11,7 @@
 Renderer::Renderer(Game* game)
 	:mGame(game)
 	, mSpriteShader(nullptr)
-	, mMeshShade(nullptr)
+	, mMeshShader(nullptr)
 {
 }
 
@@ -282,6 +282,6 @@ void Renderer::SetLightUniforms(Shader* shader)
 		mDirLight.mDirection);
 	shader->SetVectorUniform("uDirLight.mDiffuseColor",
 		mDirLight.mDiffuseColor);
-	shader->SetVectorUnifrom("uDirLight.mSpecColor",
+	shader->SetVectorUniform("uDirLight.mSpecColor",
 		mDirLight.mSpecColor);
 }

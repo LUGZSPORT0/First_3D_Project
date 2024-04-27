@@ -7,11 +7,14 @@
 // ----------------------------------------------------------------
 
 #include "Game.h"
-#include "SDL_image.h"
 #include <algorithm>
+#include "Renderer.h"
+#include "SDL_image.h"
 #include "Actor.h"
 #include "SpriteComponent.h"
-#include "Ship.h"
+#include "MeshComponent.h"
+#include "CameraActor.h"
+#include "PlaneActor.h"
 
 Game::Game()
 	:mWindow(nullptr)
