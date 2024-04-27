@@ -28,7 +28,7 @@ public:
 	void Draw();
 
 	void AddSprite(class SpriteComponent* sprite);
-	void RemoveSprite(class SpriteCompnent* sprite);
+	void RemoveSprite(class SpriteComponent* sprite);
 	
 	void AddMeshComp(class MeshComponent* mesh);
 	void RemoveMeshComp(class MeshComponent* mesh);

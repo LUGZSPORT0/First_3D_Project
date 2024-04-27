@@ -1,6 +1,6 @@
 #include "CameraActor.h"
 #include "MoveComponent.h"
-#include <SDL.h>
+#include <SDL_scancode.h>
 #include "Renderer.h"
 #include "Game.h"
 

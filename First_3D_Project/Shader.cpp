@@ -34,6 +34,7 @@ bool Shader::Load(const std::string& vertName, const std::string& fragName)
 	// links together the vertex/frag shaders
 	mShaderProgram = glCreateProgram();
 	glAttachShader(mShaderProgram, mVertexShader);
+	glAttachShader(mShaderProgram, mFragShader);
 	glLinkProgram(mShaderProgram);
 
 	// Verify that the program linked successfully
@@ -101,15 +102,33 @@ bool Shader::CompileShader(const std::string& fileName,
 		glShaderSource(outShader, 1, &(contentsChar), nullptr);
 		glCompileShader(outShader);
 
-		if (IsCompiled(outShader))
+		if (!IsCompiled(outShader))
 		{
-			SDL_Log("Gailed to compile shader %s", fileName.c_str());
+			SDL_Log("Failed to compile shader %s", fileName.c_str());
 			return false;
 		}
 	}
 	else
 	{
 		SDL_Log("Shader file not found: %s", fileName.c_str());
+		return false;
+	}
+
+	return true;
+}
+
+bool Shader::IsCompiled(GLuint shader)
+{
+	GLint status;
+	// Query the compile status
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+
+	if (status != GL_TRUE)
+	{	
+		char buffer[512];
+		memset(buffer, 0, 512);
+		glGetShaderInfoLog(shader, 511, nullptr, buffer);
+		SDL_Log("GLSL Compile Failed:\n%s", buffer);
 		return false;
 	}
 

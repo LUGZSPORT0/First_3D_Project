@@ -170,7 +170,7 @@ void Renderer::AddSprite(SpriteComponent* sprite)
 	mSprites.insert(iter, sprite);
 }
 
-void Renderer::RemoveSprite(SpriteCompnent* sprite)
+void Renderer::RemoveSprite(SpriteComponent* sprite)
 {
 	auto iter = std::find(mSprites.begin(), mSprites.end(), sprite);
 	mSprites.erase(iter);
@@ -243,6 +243,19 @@ bool Renderer::LoadShaders()
 	{
 		return false;
 	}
+
+	mSpriteShader->SetActive();
+	// Set the view-projection matrix
+	Matrix4 viewProj = Matrix4::CreateSimpleViewProj(mScreenWidth, mScreenHeight);
+	mSpriteShader->SetMatrixUniform("uViewProj", viewProj);
+
+	// Create basic shader
+	mMeshShader = new Shader();
+	if (!mMeshShader->Load("Shaders/Phong.vert", "Shaders/Phong.frag"))
+	{
+		return false;
+	}
+
 	mMeshShader->SetActive();
 	// Set the view-projection matrix
 	mView = Matrix4::CreateLookAt(Vector3::Zero, Vector3::UnitX, Vector3::UnitZ);

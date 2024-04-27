@@ -34,6 +34,9 @@ uniform float uSpecPower;
 // Ambient light level
 uniform vec3 uAmbientLight;
 
+// Directional Light
+uniform DirectionalLight uDirLight;
+
 void main()
 {
 	// Surface normalize
@@ -43,9 +46,7 @@ void main()
 	// Vector from surface to camera
 	vec3 V = normalize(uCameraPos - fragWorldPos);
 	// Reflection of -L about N
-	vec3 V = normalize(uCameraPos - fragWorldPos);
-	// Reflection of -L about N
-	vec3 R = normalize(reflect(-L, N);
+	vec3 R = normalize(reflect(-L, N));
 
 	// Compute phong reflection
 	vec3 Phong = uAmbientLight;

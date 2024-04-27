@@ -2,7 +2,7 @@
 #version 330
 
 // Tex coord input from vertex shader.
-in vec3 fragTexCoord;
+in vec2 fragTexCoord;
 
 // This corresponds to the output color to the color buffer
 out vec4 outColor;

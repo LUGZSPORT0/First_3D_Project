@@ -17,8 +17,7 @@
 #include "PlaneActor.h"
 
 Game::Game()
-	:mWindow(nullptr)
-	, mRenderer(nullptr)
+	:mRenderer(nullptr)
 	, mIsRunning(true)
 	, mUpdatingActors(false)
 {
@@ -33,23 +32,13 @@ bool Game::Initialize()
 		return false;
 	}
 
-	mWindow = SDL_CreateWindow("Game Programming in C++ (Chapter 2)", 100, 100, 1024, 768, 0);
-	if (!mWindow)
+	// Create the renderer
+	mRenderer = new Renderer(this);
+	if (!mRenderer->Initialize(1024.0f, 768.0f))
 	{
-		SDL_Log("Failed to create window: %s", SDL_GetError());
-		return false;
-	}
-
-	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (!mRenderer)
-	{
-		SDL_Log("Failed to create renderer: %s", SDL_GetError());
-		return false;
-	}
-
-	if (IMG_Init(IMG_INIT_PNG) == 0)
-	{
-		SDL_Log("Unable to initialize SDL_image: %s", SDL_GetError());
+		SDL_Log("Failed to initialize renderer");
+		delete mRenderer;
+		mRenderer = nullptr;
 		return false;
 	}
 
@@ -89,8 +78,10 @@ void Game::ProcessInput()
 		mIsRunning = false;
 	}
 
-	//// Process ship input
-	//mShip->ProcessKeyboard(state);
+	for (auto actor : mActors)
+	{
+		actor->ProcessInput(state);
+	}
 }
 
 void Game::UpdateGame()
@@ -118,6 +109,7 @@ void Game::UpdateGame()
 	// Move any pending actors to mActors
 	for (auto pending : mPendingActors)
 	{
+		pending->ComputeWorldTransform();
 		mActors.emplace_back(pending);
 	}
 	mPendingActors.clear();
@@ -141,24 +133,86 @@ void Game::UpdateGame()
 
 void Game::GenerateOutput()
 {
-	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(mRenderer);
-
-	// Draw all sprite components
-	for (auto sprite : mSprites)
-	{
-		sprite->Draw(mRenderer);
-	}
-
-	SDL_RenderPresent(mRenderer);
+	mRenderer->Draw();
 }
 
 void Game::LoadData()
 {
-	//// Create player's ship
-	//mShip = new Ship(this);
-	//mShip->SetPosition(Vector2(100.0f, 384.0f));
-	//mShip->SetScale(1.5f);
+	// Create actors
+	Actor* a = new Actor(this);
+	a->SetPosition(Vector3(200.0f, 75.0f, 0.0f));
+	a->SetScale(100.0f);
+	Quaternion q(Vector3::UnitY, -Math::PiOver2);
+	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::Pi + Math::Pi / 4.0f));
+	a->SetRotation(q);
+	MeshComponent* mc = new MeshComponent(a);
+	mc->SetMesh(mRenderer->GetMesh("Assets/Cube.gpmesh"));
+
+	a = new Actor(this);
+	a->SetPosition(Vector3(200.0f, -75.0f, 0.0f));
+	a->SetScale(3.0f);
+	mc = new MeshComponent(a);
+	mc->SetMesh(mRenderer->GetMesh("Assets/Sphere.gpmesh"));
+
+	// Setup floor
+	const float start = -1250.0f;
+	const float size = 250.0f;
+	for (int i = 0; i < 10; i++)
+	{
+		for (int j = 0; j < 10; j++)
+		{
+			a = new PlaneActor(this);
+			a->SetPosition(Vector3(start + i * size, start + j * size, -100.0f));
+		}
+	}
+
+	// Left/right walls
+	q = Quaternion(Vector3::UnitX, Math::PiOver2);
+	for (int i = 0; i < 10; i++)
+	{
+		a = new PlaneActor(this);
+		a->SetPosition(Vector3(start + i * size, start - size, 0.0f));
+		a->SetRotation(q);
+
+		a = new PlaneActor(this);
+		a->SetPosition(Vector3(start + i * size, -start + size, 0.0f));
+		a->SetRotation(q);
+	}
+
+	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::PiOver2));
+	// Forward/back walls
+	for (int i = 0; i < 10; i++)
+	{
+		a = new PlaneActor(this);
+		a->SetPosition(Vector3(start - size, start + i * size, 0.0f));
+		a->SetRotation(q);
+
+		a = new PlaneActor(this);
+		a->SetPosition(Vector3(-start + size, start + i * size, 0.0f));
+		a->SetRotation(q);
+	}
+
+	// Setup lights
+	mRenderer->SetAmbientLight(Vector3(0.2f, 0.2f, 0.2f));
+	DirectionalLight& dir = mRenderer->GetDirectionalLight();
+	dir.mDirection = Vector3(0.0f, -0.770f, -0.707f);
+	dir.mDiffuseColor = Vector3(0.78f, 0.88f, 1.0f);
+	dir.mSpecColor = Vector3(0.8f, 0.8f, 0.8f);
+
+	// Camera actor
+	mCameraActor = new CameraActor(this);
+
+	// UI elements
+	a = new Actor(this);
+	a->SetPosition(Vector3(-350.0f, -350.0f, 0.0f));
+	SpriteComponent* sc = new SpriteComponent(a);
+	sc->SetTexture(mRenderer->GetTexture("Assets/HealthBar.png"));
+
+	a = new Actor(this);
+	a->SetPosition(Vector3(375.0f, -275.0f, 0.0f));
+	a->SetScale(0.75f);
+	sc = new SpriteComponent(a);
+	sc->SetTexture(mRenderer->GetTexture("Assets/Radar.png"));
 }
 
 void Game::UnloadData()
@@ -170,53 +224,19 @@ void Game::UnloadData()
 		delete mActors.back();
 	}
 
-	// Destroy textures
-	for (auto i : mTextures)
+	if (mRenderer)
 	{
-		SDL_DestroyTexture(i.second);
+		mRenderer->UnloadData();
 	}
-	mTextures.clear();
-}
-
-SDL_Texture* Game::GetTexture(const std::string& fileName)
-{
-	SDL_Texture* tex = nullptr;
-	// Is the texture already in the map?
-	auto iter = mTextures.find(fileName);
-	if (iter != mTextures.end())
-	{
-		tex = iter->second;
-	}
-	else
-	{
-		// Load from file
-		SDL_Surface* surf = IMG_Load(fileName.c_str());
-		if (!surf)
-		{
-			SDL_Log("Failed to load texture file %s", fileName.c_str());
-			return nullptr;
-		}
-
-		// Create texture from surface
-		tex = SDL_CreateTextureFromSurface(mRenderer, surf);
-		SDL_FreeSurface(surf);
-		if (!tex)
-		{
-			SDL_Log("Failed to convert surface to texture for %s", fileName.c_str());
-			return nullptr;
-		}
-
-		mTextures.emplace(fileName.c_str(), tex);
-	}
-	return tex;
 }
 
 void Game::Shutdown()
 {
 	UnloadData();
-	IMG_Quit();
-	SDL_DestroyRenderer(mRenderer);
-	SDL_DestroyWindow(mWindow);
+	if (mRenderer)
+	{
+		mRenderer->Shutdown();
+	}
 	SDL_Quit();
 }
 
@@ -254,29 +274,3 @@ void Game::RemoveActor(Actor* actor)
 	}
 }
 
-void Game::AddSprite(SpriteComponent* sprite)
-{
-	// Find the insertion point in the sorted vector
-	// (The first element with a higher draw order than me)
-	int myDrawOrder = sprite->GetDrawOrder();
-	auto iter = mSprites.begin();
-	for (;
-		iter != mSprites.end();
-		++iter)
-	{
-		if (myDrawOrder < (*iter)->GetDrawOrder())
-		{
-			break;
-		}
-	}
-
-	// Inserts element before position of iterator
-	mSprites.insert(iter, sprite);
-}
-
-void Game::RemoveSprite(SpriteComponent* sprite)
-{
-	// (We can't swap because it ruins ordering)
-	auto iter = std::find(mSprites.begin(), mSprites.end(), sprite);
-	mSprites.erase(iter);
-}

@@ -1,6 +1,6 @@
 #include "PlaneActor.h"
 #include "Game.h"
-#include "inkrenderer.h"
+#include "Renderer.h"
 #include "MeshComponent.h"
 
 PlaneActor::PlaneActor(Game* game)
