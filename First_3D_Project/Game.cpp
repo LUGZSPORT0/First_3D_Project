@@ -13,6 +13,7 @@
 #include "Actor.h"
 #include "SpriteComponent.h"
 #include "MeshComponent.h"
+#include "Mesh.h"
 #include "CameraActor.h"
 #include "PlaneActor.h"
 
@@ -136,6 +137,13 @@ void Game::GenerateOutput()
 	mRenderer->Draw();
 }
 
+void test(MeshComponent* meshComponent)
+{
+	Mesh* m;
+	m = meshComponent->mMesh;
+	meshComponent->mShaderName = m->GetShaderName();
+}
+
 void Game::LoadData()
 {
 	// Create actors
@@ -147,12 +155,14 @@ void Game::LoadData()
 	a->SetRotation(q);
 	MeshComponent* mc = new MeshComponent(a);
 	mc->SetMesh(mRenderer->GetMesh("Assets/Cube.gpmesh"));
+	test(mc);
 
 	a = new Actor(this);
 	a->SetPosition(Vector3(200.0f, -75.0f, 0.0f));
 	a->SetScale(3.0f);
 	mc = new MeshComponent(a);
 	mc->SetMesh(mRenderer->GetMesh("Assets/Sphere.gpmesh"));
+	test(mc);
 
 	// Setup floor
 	const float start = -1250.0f;

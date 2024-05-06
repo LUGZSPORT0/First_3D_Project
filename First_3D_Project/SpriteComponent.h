@@ -9,7 +9,6 @@
 #pragma once
 #include "Component.h"
 #include "SDL.h"
-#include "Texture.h"
 
 class SpriteComponent : public Component
 {
@@ -19,7 +18,7 @@ public:
 	~SpriteComponent();
 
 	virtual void Draw(class Shader* shader);
-	virtual void SetTexture(Texture* texture);
+	virtual void SetTexture(class Texture* texture);
 
 	int GetDrawOrder() const { return mDrawOrder; }
 	int GetTexHeight() const { return mTexHeight; }

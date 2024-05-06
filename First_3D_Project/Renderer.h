@@ -52,11 +52,14 @@ private:
 	std::unordered_map<std::string, class Texture*> mTextures;
 	// Map of meshes loaded
 	std::unordered_map<std::string, class Mesh*> mMeshes;
+	// Map of shaders
+	std::unordered_map<std::string, class Shader*> mShaders;
 
 	// All the sprite components drawn
 	std::vector<class SpriteComponent*> mSprites;
 
 	// All mesh components drawn
+	// //separate by the type of shader used
 	std::vector<class MeshComponent*> mMeshComps;
 
 	// Game
