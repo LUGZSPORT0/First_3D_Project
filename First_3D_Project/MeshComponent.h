@@ -14,7 +14,7 @@ public:
 	virtual void SetMesh(class Mesh* mesh) { mMesh = mesh; }
 	std::string GetShaderName() { return mShaderName; }
 	void SetTextureIndex(size_t index) { mTextureIndex = index; }
-	friend void test(MeshComponent* meshComponent);
+	friend void UpdateMeshComponent(MeshComponent* meshComponent);
 protected:
 	class Mesh* mMesh;
 	size_t mTextureIndex;
