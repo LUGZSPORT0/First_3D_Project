@@ -123,8 +123,6 @@ void Renderer::Draw()
 	mShaders["Basic"]->SetActive();
 	// Update view-projection matrix
 	mShaders["Basic"]->SetMatrixUniform("uViewProj", mView * mProjection);
-	// Update lighting uniforms
-	//SetLightUniforms(mShaders["Basic"]);
 	for (auto mc : mMeshComps)
 	{
 		// pass the map of shaders here

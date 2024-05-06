@@ -137,7 +137,7 @@ void Game::GenerateOutput()
 	mRenderer->Draw();
 }
 
-void test(MeshComponent* meshComponent)
+void UpdateMeshComponent(MeshComponent* meshComponent)
 {
 	Mesh* m;
 	m = meshComponent->mMesh;
@@ -155,14 +155,14 @@ void Game::LoadData()
 	a->SetRotation(q);
 	MeshComponent* mc = new MeshComponent(a);
 	mc->SetMesh(mRenderer->GetMesh("Assets/Cube.gpmesh"));
-	test(mc);
+	UpdateMeshComponent(mc);
 
 	a = new Actor(this);
 	a->SetPosition(Vector3(200.0f, -75.0f, 0.0f));
 	a->SetScale(3.0f);
 	mc = new MeshComponent(a);
 	mc->SetMesh(mRenderer->GetMesh("Assets/Sphere.gpmesh"));
-	test(mc);
+	UpdateMeshComponent(mc);
 
 	// Setup floor
 	const float start = -1250.0f;
